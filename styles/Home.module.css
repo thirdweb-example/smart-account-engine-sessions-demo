@@ -5,6 +5,20 @@
   margin: 0 auto;
 }
 
+.addButton {
+  background-color: #070707;
+  color: #e7e8e8;
+  border: none;
+  padding: 10px 20px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.addButton:hover {
+  background-color: #e7e8e8;
+  color: #070707;
+}
+
 .gradientText0 {
   background: -webkit-linear-gradient(#bfa3da, #84309c, #c735b0);
   -webkit-background-clip: text;
