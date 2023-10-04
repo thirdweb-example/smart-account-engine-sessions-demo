@@ -1,9 +1,13 @@
-import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
+import { ConnectWallet, useAddress, useContract, useSDK, useSmartWallet, useWallet } from "@thirdweb-dev/react";
+import { SmartWallet } from "@thirdweb-dev/wallets";
 import { useState, useEffect } from "react";
 import styles from "../styles/Home.module.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Header from "../components/Header";
 import { NextPage } from "next";
 import { ConnectWalletProps } from "@thirdweb-dev/react/dist/declarations/src/wallet/ConnectWallet/ConnectWallet";
+import { ACCOUNT_ABI, OE_CONTRACT_ADDRESS } from "../lib/constants";
 
 const connectWalletConfig = {
   theme: "dark",
@@ -26,11 +30,17 @@ const connectWalletConfig = {
 
 const Home: NextPage = () => {
   const address = useAddress();
+  const userWallet : SmartWallet | undefined = useWallet();
+  const {contract}  = useContract(address, ACCOUNT_ABI);
+  const sdk = useSDK();
+ //const userWallet = useThirdwebSigner();
+
   const [backendWallets, setBackendWallets] = useState<string[]>([]);
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
 
   useEffect(() => {
     if (address) {
+      console.log("connected address: " + address);
       console.log("fetching backend wallets");
       // Fetch backend wallets when address is defined
       fetch('/api/backendwallets')
@@ -40,9 +50,35 @@ const Home: NextPage = () => {
     }
   }, [address]);
 
-  const handleWalletSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleWalletSelect =  (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedWallet(event.target.value);
+
   };
+
+  const handleAddToSession = async () => {
+    if (selectedWallet) {
+   
+        // make sure smart wallet has been deployed
+        const isDeployed = await userWallet?.isDeployed();
+        if(!isDeployed) {
+          console.log("deploying user wallet");
+          const deployTx = await userWallet?.deploy();
+          console.log(deployTx);
+        }
+
+        // grant permissions to backend wallet for 1 hr
+        const startTime = new Date();
+
+        // Define the end time as 30 minutes from now
+        const endTime = new Date(startTime.getTime() + 30 * 60000); // 60000 milliseconds in a minute
+        console.log("adding to session: " + selectedWallet + " from " + startTime + " to " + endTime);
+        const sessionTx = await contract?.account.grantPermissions(selectedWallet, {approvedCallTargets: [OE_CONTRACT_ADDRESS], startDate: startTime, expirationDate: endTime});
+        console.log(sessionTx);
+
+        // notify user
+        toast.success("added to session: " + selectedWallet + " from " + startTime + " to " + endTime + " with tx: " + sessionTx?.receipt.transactionHash);
+    }
+  }
 
   if(!address) 
   return (
@@ -50,6 +86,7 @@ const Home: NextPage = () => {
       <div className={styles.container}>
         <Header />
         <div className={styles.connect}>
+          <h3>Create Embedded Wallet + Smart Account for User &#8594; <i>Connect Wallet SDK</i></h3>
           <ConnectWallet {...connectWalletConfig}/>
         </div>
       </div>
@@ -61,9 +98,10 @@ const Home: NextPage = () => {
       <div className={styles.container}>
         <Header />
         <div className={styles.connect}>
+        <h3>Create Embedded Wallet + Smart Account for User &#8594; <i>Connect Wallet SDK</i></h3>
           <ConnectWallet {...connectWalletConfig}/>
         </div>
-        <h2>Select a Backend Wallet to Add As Signer:</h2>
+        <h3>Select a Backend Wallet to Create 30 min Session With:</h3>
         <select value={selectedWallet || ''} onChange={handleWalletSelect} style={{ background: "#070707", color: "#e7e8e8" }}>
           <option value="" disabled>Select a wallet</option>
           {backendWallets.map(wallet => (
@@ -72,8 +110,12 @@ const Home: NextPage = () => {
             </option>
           ))}
         </select>
-        <button /*onClick={}*/ className={styles.addButton}>Add</button>
+          &nbsp;&nbsp;<i>&#8594; GET /backend-wallet/get-all with Engine</i>
+        <br/><br/>
+        <button onClick={handleAddToSession} className={styles.addButton}>Add to Session</button>
+        &nbsp;&nbsp;<i>&#8594; account.grantPermission() using Client Smart Wallet SDK</i>
       </div>
+      <ToastContainer />
     </main>
   );
 };
