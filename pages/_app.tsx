@@ -1,5 +1,5 @@
 import type { AppProps } from "next/app";
-import { ThirdwebProvider, localWallet, embeddedWallet, smartWallet } from "@thirdweb-dev/react";
+import { ThirdwebProvider, localWallet, embeddedWallet, smartWallet, metamaskWallet } from "@thirdweb-dev/react";
 import {ArbitrumGoerli} from "@thirdweb-dev/chains";
 import {ACCOUNT_FACTORY_ADDRESS} from "../lib/constants";
 import "../styles/globals.css";
@@ -23,7 +23,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         smartWallet(
           embeddedWallet(),
           smartWalletOptions,
-        ),
+        )
       ]}
     >
       <Component {...pageProps} />

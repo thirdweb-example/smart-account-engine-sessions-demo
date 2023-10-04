@@ -1,4 +1,4 @@
-import { ConnectWallet, useAddress, useContract, useSDK, useSmartWallet, useWallet } from "@thirdweb-dev/react";
+import { ConnectWallet, useAddress, useContract, useSDK, /*useCreateSessionKey,*/ useWallet } from "@thirdweb-dev/react";
 import { SmartWallet } from "@thirdweb-dev/wallets";
 import { useState, useEffect } from "react";
 import styles from "../styles/Home.module.css";
@@ -37,6 +37,15 @@ const Home: NextPage = () => {
 
   const [backendWallets, setBackendWallets] = useState<string[]>([]);
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
+  const [isAddingSession, setIsAddingSession] = useState<boolean>(false);
+  const [isReadyToMint, setIsReadyToMint] = useState<boolean>(false);
+  const [isMinting, setIsMinting] = useState<boolean>(false);
+
+  // const {
+  //   mutate: createSessionKey,
+  //   isLoading,
+  //   error,
+  // } = useCreateSessionKey();
 
   useEffect(() => {
     if (address) {
@@ -57,6 +66,8 @@ const Home: NextPage = () => {
 
   const handleAddToSession = async () => {
     if (selectedWallet) {
+
+      setIsAddingSession(true);
    
         // make sure smart wallet has been deployed
         const isDeployed = await userWallet?.isDeployed();
@@ -73,11 +84,22 @@ const Home: NextPage = () => {
         const endTime = new Date(startTime.getTime() + 30 * 60000); // 60000 milliseconds in a minute
         console.log("adding to session: " + selectedWallet + " from " + startTime + " to " + endTime);
         const sessionTx = await contract?.account.grantPermissions(selectedWallet, {approvedCallTargets: [OE_CONTRACT_ADDRESS], startDate: startTime, expirationDate: endTime});
+        //const sessionKey = await createSessionKey({approvedCallTargets: [OE_CONTRACT_ADDRESS], startDate: startTime, expirationDate: endTime});
         console.log(sessionTx);
+
+        setIsReadyToMint(true);
+        setIsAddingSession(false);
 
         // notify user
         toast.success("added to session: " + selectedWallet + " from " + startTime + " to " + endTime + " with tx: " + sessionTx?.receipt.transactionHash);
     }
+  }
+
+  const handleMintNFT = async () => {
+    setIsMinting(true);
+
+    // fetch api/mint endpoint
+    const mintTx = await fetch('/api/mint');
   }
 
   if(!address) 
@@ -112,8 +134,11 @@ const Home: NextPage = () => {
         </select>
           &nbsp;&nbsp;<i>&#8594; GET /backend-wallet/get-all with Engine</i>
         <br/><br/>
-        <button onClick={handleAddToSession} className={styles.addButton}>Add to Session</button>
-        &nbsp;&nbsp;<i>&#8594; account.grantPermission() using Client Smart Wallet SDK</i>
+          {selectedWallet && <button onClick={handleAddToSession} className={styles.addButton} disabled={isAddingSession}>{isAddingSession ? 'Adding...' : 'Add to Session'}</button>}
+          {selectedWallet && <i>&nbsp;&nbsp;&#8594; account.grantPermission() using Client Smart Wallet SDK</i>}
+          <br/><br/>
+          {isReadyToMint && <h3>Mint an NFT to Smart Account Using Engine</h3>}
+          {isReadyToMint && <button onClick={handleMintNFT} className={styles.addButton} disabled={isMinting}>{isMinting ? 'Minting...' : 'Mint NFT'}</button>}
       </div>
       <ToastContainer />
     </main>

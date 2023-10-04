@@ -8,10 +8,11 @@
 .addButton {
   background-color: #070707;
   color: #e7e8e8;
-  border: none;
   padding: 10px 20px;
   margin-left: 10px;
   cursor: pointer;
+  border: 2px solid #ffffff; /* 2px wide white border */
+  border-radius: 5px; /* Optional: if you want rounded corners */
 }
 
 .addButton:hover {
