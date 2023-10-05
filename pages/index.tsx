@@ -146,7 +146,7 @@ const Home: NextPage = () => {
   
   {address ? (
     <>
-        <h3>Select a Backend Wallet to Create 5 min Session With:</h3>
+        <h3>Select a Backend Wallet to Create 15 min Session With:</h3>
         <select value={selectedWallet || ''} onChange={handleWalletSelect} style={{ background: "#070707", color: "#e7e8e8" }}>
           <option value="" disabled>Select a wallet</option>
           {backendWallets.map(wallet => (
