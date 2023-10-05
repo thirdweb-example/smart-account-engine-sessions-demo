@@ -1,31 +1,31 @@
 ## Getting Started
 
-Create a project using this example:
+This is a demo app that demonstrates creating and using scoped sessions using Smart Accounts + thirdweb Engine
+
+## To install
 
 ```bash
-npx thirdweb create --template next-typescript-starter
+yarn install
 ```
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-On `pages/_app.tsx`, you'll find our `ThirdwebProvider` wrapping your app, this is necessary for our [hooks](https://portal.thirdweb.com/react) and
-[UI Components](https://portal.thirdweb.com/ui-components) to work.
 
 ## Environment Variables
 
-To run this project, you will need to add environment variables. Check the `.env.example` file for all the environment variables required and add it to `.env.local` file or set them up on your hosting provider.
+To run this project, you will need to add environment variables
 
-## Deploy to IPFS
+* NEXT_PUBLIC_TW_CLIENT_ID: Your thirdweb client ID
+* TW_SECRET_KEY: thirdweb secret key used by the Next JS backend to Engine
+* TW_ENGINE_URL: the URL to your instance of thirdweb Engine
 
-Deploy a copy of your application to IPFS using the following command:
+## Before Running 
 
-```bash
-yarn deploy
-```
+1. Deploy a thirdweb [smart account factory](https://thirdweb.com/explore/smart-wallet) to the chain of your choice
+2. Deploy a thirdweb [Open Edition contract](https://thirdweb.com/thirdweb.eth/OpenEditionERC721) to the chain of your choice
+3. Modify the `activeChain={ArbitrumGoerli}` in `pages/_app.tsx` to the chain you are using
+4. Modify the `lib/constants.ts` file with your Smart Account Factory Address and Open Edition Contract Addresses
 
 ## Learn More
 
-To learn more about thirdweb and Next.js, take a look at the following resources:
+To learn more about thirdweb, take a look at the following resources:
 
 - [thirdweb React Documentation](https://docs.thirdweb.com/react) - learn about our React SDK.
 - [thirdweb TypeScript Documentation](https://docs.thirdweb.com/typescript) - learn about our JavaScript/TypeScript SDK.

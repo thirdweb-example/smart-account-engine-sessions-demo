@@ -1,5 +1,4 @@
-import { ConnectWallet, useAddress, useCreateSessionKey, useRevokeSessionKey } from "@thirdweb-dev/react";
-import { SmartWallet } from "@thirdweb-dev/wallets";
+import { ConnectWallet, useAddress, useCreateSessionKey, useRevokeSessionKey, useChain } from "@thirdweb-dev/react";
 import { useState, useEffect } from "react";
 import styles from "../styles/Home.module.css";
 import { ToastContainer, toast } from 'react-toastify';
@@ -30,6 +29,7 @@ const connectWalletConfig = {
 
 const Home: NextPage = () => {
   const address = useAddress();
+  const chain = useChain();
 
   const [backendWallets, setBackendWallets] = useState<string[]>([]);
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
@@ -72,7 +72,7 @@ const Home: NextPage = () => {
       const startTime = new Date();
 
       // Define the end time as 30 minutes from now
-      const endTime = new Date(startTime.getTime() + 30 * 60000); // 60000 milliseconds in a minute
+      const endTime = new Date(startTime.getTime() + 2 * 60000); // 60000 milliseconds in a minute
       console.log("adding to session: " + selectedWallet + " from " + startTime + " to " + endTime);
 
       // create session key
@@ -95,6 +95,7 @@ const Home: NextPage = () => {
       const revokeTx = await revokeSessionKey(selectedWallet);
       toast.success("revoked session for: " + selectedWallet + " with tx: " + revokeTx.receipt.transactionHash);
       setIsRevokable(false);
+      setIsReadyToMint(false);
     }
     else {
       toast.error("no selected wallet");
@@ -104,8 +105,31 @@ const Home: NextPage = () => {
   const handleMintNFT = async () => {
     setIsMinting(true);
 
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        backendWalletAddress: selectedWallet,
+        smartAccountAddress: address,
+        chain: chain?.chainId}),
+    };
+
     // fetch api/mint endpoint
-    const mintTx = await fetch('/api/mint');
+    const mintTx = await fetch('/api/mint', options)
+    .then((response) => {
+      // if status is 200 display toast success
+      if(response.status === 200) {
+        toast.success("minted NFT successfully");
+        setIsMinting(false);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      toast.error("error minting NFT: " + err)
+      setIsMinting(false);
+    });
   }
 
   if(!address) 
@@ -129,7 +153,7 @@ const Home: NextPage = () => {
         <h3>Create Embedded Wallet + Smart Account for User &#8594; <i>Connect Wallet SDK</i></h3>
           <ConnectWallet {...connectWalletConfig}/>
         </div>
-        <h3>Select a Backend Wallet to Create 30 min Session With:</h3>
+        <h3>Select a Backend Wallet to Create 5 min Session With:</h3>
         <select value={selectedWallet || ''} onChange={handleWalletSelect} style={{ background: "#070707", color: "#e7e8e8" }}>
           <option value="" disabled>Select a wallet</option>
           {backendWallets.map(wallet => (
@@ -145,9 +169,11 @@ const Home: NextPage = () => {
           <br/><br/>
           {isRevokable && <h3>Revoke Session</h3>}
           {isRevokable && <button onClick={handleRevokeSigners} className={styles.addButton} disabled={isRevoking}>{isRevoking ? 'Revoking...' : 'Revoke Session'}</button>}
+          {isRevokable && <i>&nbsp;&nbsp;&#8594; revokeSessionKey() using Client Smart Wallet SDK</i>}
           <br/><br/>
           {isReadyToMint && <h3>Mint an Open Edition NFT to Smart Account Using Engine</h3>}
           {isReadyToMint && <button onClick={handleMintNFT} className={styles.addButton} disabled={isMinting}>{isMinting ? 'Minting...' : 'Mint NFT'}</button>}
+          {isReadyToMint && <i>&nbsp;&nbsp;&#8594; {'POST /contract/{chain}/{contract}/claim-to'} with Engine</i>}
       </div>
       <ToastContainer />
     </main>
