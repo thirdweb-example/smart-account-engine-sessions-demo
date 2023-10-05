@@ -1,4 +1,4 @@
-import { ConnectWallet, useAddress, useContract, useSDK, /*useCreateSessionKey,*/ useWallet } from "@thirdweb-dev/react";
+import { ConnectWallet, useAddress, useCreateSessionKey, useRevokeSessionKey } from "@thirdweb-dev/react";
 import { SmartWallet } from "@thirdweb-dev/wallets";
 import { useState, useEffect } from "react";
 import styles from "../styles/Home.module.css";
@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Header from "../components/Header";
 import { NextPage } from "next";
 import { ConnectWalletProps } from "@thirdweb-dev/react/dist/declarations/src/wallet/ConnectWallet/ConnectWallet";
-import { ACCOUNT_ABI, OE_CONTRACT_ADDRESS } from "../lib/constants";
+import { OE_CONTRACT_ADDRESS } from "../lib/constants";
 
 const connectWalletConfig = {
   theme: "dark",
@@ -30,22 +30,24 @@ const connectWalletConfig = {
 
 const Home: NextPage = () => {
   const address = useAddress();
-  const userWallet : SmartWallet | undefined = useWallet();
-  const {contract}  = useContract(address, ACCOUNT_ABI);
-  const sdk = useSDK();
- //const userWallet = useThirdwebSigner();
 
   const [backendWallets, setBackendWallets] = useState<string[]>([]);
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
-  const [isAddingSession, setIsAddingSession] = useState<boolean>(false);
+  const [isRevokable, setIsRevokable] = useState<boolean>(false);
   const [isReadyToMint, setIsReadyToMint] = useState<boolean>(false);
   const [isMinting, setIsMinting] = useState<boolean>(false);
 
-  // const {
-  //   mutate: createSessionKey,
-  //   isLoading,
-  //   error,
-  // } = useCreateSessionKey();
+  const {
+    mutateAsync: createSessionKey,
+    isLoading,
+    error,
+  } = useCreateSessionKey();
+
+  const {
+    mutateAsync: revokeSessionKey,
+    isLoading: isRevoking,
+    error: revokeError,
+  } = useRevokeSessionKey();
 
   useEffect(() => {
     if (address) {
@@ -66,32 +68,36 @@ const Home: NextPage = () => {
 
   const handleAddToSession = async () => {
     if (selectedWallet) {
-
-      setIsAddingSession(true);
    
-        // make sure smart wallet has been deployed
-        const isDeployed = await userWallet?.isDeployed();
-        if(!isDeployed) {
-          console.log("deploying user wallet");
-          const deployTx = await userWallet?.deploy();
-          console.log(deployTx);
-        }
+      const startTime = new Date();
 
-        // grant permissions to backend wallet for 1 hr
-        const startTime = new Date();
+      // Define the end time as 30 minutes from now
+      const endTime = new Date(startTime.getTime() + 30 * 60000); // 60000 milliseconds in a minute
+      console.log("adding to session: " + selectedWallet + " from " + startTime + " to " + endTime);
 
-        // Define the end time as 30 minutes from now
-        const endTime = new Date(startTime.getTime() + 30 * 60000); // 60000 milliseconds in a minute
-        console.log("adding to session: " + selectedWallet + " from " + startTime + " to " + endTime);
-        const sessionTx = await contract?.account.grantPermissions(selectedWallet, {approvedCallTargets: [OE_CONTRACT_ADDRESS], startDate: startTime, expirationDate: endTime});
-        //const sessionKey = await createSessionKey({approvedCallTargets: [OE_CONTRACT_ADDRESS], startDate: startTime, expirationDate: endTime});
-        console.log(sessionTx);
+      // create session key
+      const sessionKey = await createSessionKey({
+        keyAddress: selectedWallet,
+        permissions: {approvedCallTargets: [OE_CONTRACT_ADDRESS], startDate: startTime, expirationDate: endTime}
+      });
+      console.log(sessionKey);
 
-        setIsReadyToMint(true);
-        setIsAddingSession(false);
+      setIsRevokable(true);
+      setIsReadyToMint(true);
 
-        // notify user
-        toast.success("added to session: " + selectedWallet + " from " + startTime + " to " + endTime + " with tx: " + sessionTx?.receipt.transactionHash);
+      // notify user
+      toast.success("added to session: " + selectedWallet + " from " + startTime + " to " + endTime + " with tx: " + sessionKey.receipt.transactionHash);
+    }
+  }
+
+  const handleRevokeSigners = async () => {
+    if(selectedWallet) {
+      const revokeTx = await revokeSessionKey(selectedWallet);
+      toast.success("revoked session for: " + selectedWallet + " with tx: " + revokeTx.receipt.transactionHash);
+      setIsRevokable(false);
+    }
+    else {
+      toast.error("no selected wallet");
     }
   }
 
@@ -134,10 +140,13 @@ const Home: NextPage = () => {
         </select>
           &nbsp;&nbsp;<i>&#8594; GET /backend-wallet/get-all with Engine</i>
         <br/><br/>
-          {selectedWallet && <button onClick={handleAddToSession} className={styles.addButton} disabled={isAddingSession}>{isAddingSession ? 'Adding...' : 'Add to Session'}</button>}
-          {selectedWallet && <i>&nbsp;&nbsp;&#8594; account.grantPermission() using Client Smart Wallet SDK</i>}
+          {selectedWallet && <button onClick={handleAddToSession} className={styles.addButton} disabled={isLoading}>{isLoading ? 'Adding...' : 'Add to Session'}</button>}
+          {selectedWallet && <i>&nbsp;&nbsp;&#8594; createSessionKey() using Client Smart Wallet SDK</i>}
           <br/><br/>
-          {isReadyToMint && <h3>Mint an NFT to Smart Account Using Engine</h3>}
+          {isRevokable && <h3>Revoke Session</h3>}
+          {isRevokable && <button onClick={handleRevokeSigners} className={styles.addButton} disabled={isRevoking}>{isRevoking ? 'Revoking...' : 'Revoke Session'}</button>}
+          <br/><br/>
+          {isReadyToMint && <h3>Mint an Open Edition NFT to Smart Account Using Engine</h3>}
           {isReadyToMint && <button onClick={handleMintNFT} className={styles.addButton} disabled={isMinting}>{isMinting ? 'Minting...' : 'Mint NFT'}</button>}
       </div>
       <ToastContainer />
