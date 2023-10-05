@@ -49,6 +49,7 @@ const Home: NextPage = () => {
     error: revokeError,
   } = useRevokeSessionKey();
 
+  // fetch backend wallets from Engine
   useEffect(() => {
     if (address) {
       console.log("connected address: " + address);
@@ -63,16 +64,16 @@ const Home: NextPage = () => {
 
   const handleWalletSelect =  (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedWallet(event.target.value);
-
   };
 
+  // function to handle adding a backend wallet to a smart account session
   const handleAddToSession = async () => {
     if (selectedWallet) {
    
       const startTime = new Date();
 
-      // Define the end time as 30 minutes from now
-      const endTime = new Date(startTime.getTime() + 2 * 60000); // 60000 milliseconds in a minute
+      // Define the end time as 15 minutes from now
+      const endTime = new Date(startTime.getTime() + 15 * 60000); // 60000 milliseconds in a minute
       console.log("adding to session: " + selectedWallet + " from " + startTime + " to " + endTime);
 
       // create session key
@@ -90,6 +91,7 @@ const Home: NextPage = () => {
     }
   }
 
+  // function to handle revoking a backend wallet from a smart account session
   const handleRevokeSigners = async () => {
     if(selectedWallet) {
       const revokeTx = await revokeSessionKey(selectedWallet);
@@ -102,6 +104,7 @@ const Home: NextPage = () => {
     }
   }
 
+  // function to handle minting an NFT using Engine and the session key
   const handleMintNFT = async () => {
     setIsMinting(true);
 
@@ -132,7 +135,6 @@ const Home: NextPage = () => {
     });
   }
 
-  if(!address) 
   return (
     <main className={styles.main}>
       <div className={styles.container}>
@@ -141,18 +143,9 @@ const Home: NextPage = () => {
           <h3>Create Embedded Wallet + Smart Account for User &#8594; <i>Connect Wallet SDK</i></h3>
           <ConnectWallet {...connectWalletConfig}/>
         </div>
-      </div>
-    </main>
-  );
   
-  if(address) return (
-    <main className={styles.main}>
-      <div className={styles.container}>
-        <Header />
-        <div className={styles.connect}>
-        <h3>Create Embedded Wallet + Smart Account for User &#8594; <i>Connect Wallet SDK</i></h3>
-          <ConnectWallet {...connectWalletConfig}/>
-        </div>
+  {address ? (
+    <>
         <h3>Select a Backend Wallet to Create 5 min Session With:</h3>
         <select value={selectedWallet || ''} onChange={handleWalletSelect} style={{ background: "#070707", color: "#e7e8e8" }}>
           <option value="" disabled>Select a wallet</option>
@@ -174,6 +167,10 @@ const Home: NextPage = () => {
           {isReadyToMint && <h3>Mint an Open Edition NFT to Smart Account Using Engine</h3>}
           {isReadyToMint && <button onClick={handleMintNFT} className={styles.addButton} disabled={isMinting}>{isMinting ? 'Minting...' : 'Mint NFT'}</button>}
           {isReadyToMint && <i>&nbsp;&nbsp;&#8594; {'POST /contract/{chain}/{contract}/claim-to'} with Engine</i>}
+          </>
+  ) : (
+    <></>
+  )}
       </div>
       <ToastContainer />
     </main>
