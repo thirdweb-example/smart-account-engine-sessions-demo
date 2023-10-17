@@ -1,4 +1,4 @@
-import { ConnectWallet, useAddress, useCreateSessionKey, useRevokeSessionKey, useChain } from "@thirdweb-dev/react";
+import { ConnectWallet, useAddress, useCreateSessionKey, useRevokeSessionKey, useChain, useAddAdmin } from "@thirdweb-dev/react";
 import { useState, useEffect } from "react";
 import styles from "../styles/Home.module.css";
 import { ToastContainer, toast } from 'react-toastify';
