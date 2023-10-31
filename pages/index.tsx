@@ -147,7 +147,7 @@ const Home: NextPage = () => {
   {address ? (
     <>
     <hr className="divider" />
-        <h3>Select a Backend Wallet to Create 15 min Session With:</h3>
+        <h3>Select a Backend Wallet to Create 15 min Session With</h3>
         <select value={selectedWallet || ''} onChange={handleWalletSelect} style={{ background: "#070707", color: "#e7e8e8" }}>
           <option value="" disabled>Select a wallet</option>
           {backendWallets.map(wallet => (
@@ -157,10 +157,10 @@ const Home: NextPage = () => {
           ))}
         </select>
         <br/><br/>
-        {selectedWallet && <h3>Add Backend Wallet to Smart Account Session</h3>}
+        {selectedWallet && <h3>Add Backend Wallet to Smart Account Session using <code className="code">{"addSessionKey()"}</code></h3>}
           {selectedWallet && <button onClick={handleAddToSession} className={styles.addButton} disabled={isLoading}>{isLoading ? 'Adding...' : 'Add to Session'}</button>}
           <br/><br/>
-          {selectedWallet && <h3>Revoke Backend Wallet from Smart Account Session</h3>}
+          {selectedWallet && <h3>Revoke Backend Wallet from Smart Account Session using <code className="code">{"revokeSessionKey()"}</code></h3>}
           {selectedWallet && <button onClick={handleRevokeSigners} className={styles.addButton} disabled={isRevoking}>{isRevoking ? 'Revoking...' : 'Revoke Session'}</button>}
           <br/><br/>
           <hr className="divider" />

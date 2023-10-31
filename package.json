@@ -12,9 +12,9 @@
   },
   "dependencies": {
     "@thirdweb-dev/engine": "^0.0.1",
-    "@thirdweb-dev/react": "^4.0.7",
-    "@thirdweb-dev/sdk": "^4.0.6",
-    "@thirdweb-dev/wallets": "^2.0.7",
+    "@thirdweb-dev/react": "^4.0.10",
+    "@thirdweb-dev/sdk": "^4.0.9",
+    "@thirdweb-dev/wallets": "^2.0.10",
     "ethers": "^5",
     "next": "^13",
     "node-fetch": "^3.3.2",

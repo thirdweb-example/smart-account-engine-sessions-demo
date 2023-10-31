@@ -14,7 +14,7 @@ const Header: React.FC = () => {
             rel="noopener noreferrer"
           >
             thirdweb
-          </a> Smart Accounts (ERC 4337)
+          </a> Engine (using Smart Accounts)
         </span>
       </h1>
     </div>
