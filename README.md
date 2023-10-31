@@ -13,7 +13,7 @@ yarn install
 To run this project, you will need to add environment variables
 
 * NEXT_PUBLIC_TW_CLIENT_ID: Your thirdweb client ID
-* TW_SECRET_KEY: thirdweb secret key used by the Next JS backend to Engine
+* TW_ENGINE_ACCESS_KEY: thirdweb Engine access key used by the Next JS backend to Engine
 * TW_ENGINE_URL: the URL to your instance of thirdweb Engine
 
 ## Before Running 

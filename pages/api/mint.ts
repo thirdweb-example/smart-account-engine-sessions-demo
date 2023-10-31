@@ -19,7 +19,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         // create Engine connection
         const engine = new Engine({
             url: process.env.TW_ENGINE_URL as string,
-            accessToken: process.env.TW_ACCESS_KEY as string,
+            accessToken: process.env.TW_ENGINE_ACCESS_KEY as string,
         });
 
         // call claimTo on the contract

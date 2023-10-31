@@ -87,7 +87,7 @@ const Home: NextPage = () => {
       setIsReadyToMint(true);
 
       // notify user
-      toast.success("added to session: " + selectedWallet + " from " + startTime + " to " + endTime + " with tx: " + sessionKey.receipt.transactionHash);
+      toast.success("added to session: " + selectedWallet + " from " + startTime + " to " + endTime);
     }
   }
 
@@ -95,7 +95,7 @@ const Home: NextPage = () => {
   const handleRevokeSigners = async () => {
     if(selectedWallet) {
       const revokeTx = await revokeSessionKey(selectedWallet);
-      toast.success("revoked session for: " + selectedWallet + " with tx: " + revokeTx.receipt.transactionHash);
+      toast.success("revoked session for: " + selectedWallet);
       setIsRevokable(false);
       setIsReadyToMint(false);
     }
@@ -140,12 +140,13 @@ const Home: NextPage = () => {
       <div className={styles.container}>
         <Header />
         <div className={styles.connect}>
-          <h3>Create Embedded Wallet + Smart Account for User &#8594; <i>Connect Wallet SDK</i></h3>
+          <h3>Create Embedded Wallet + Smart Account for User</h3>
           <ConnectWallet {...connectWalletConfig}/>
         </div>
   
   {address ? (
     <>
+    <hr className="divider" />
         <h3>Select a Backend Wallet to Create 15 min Session With:</h3>
         <select value={selectedWallet || ''} onChange={handleWalletSelect} style={{ background: "#070707", color: "#e7e8e8" }}>
           <option value="" disabled>Select a wallet</option>
@@ -155,18 +156,16 @@ const Home: NextPage = () => {
             </option>
           ))}
         </select>
-          &nbsp;&nbsp;<i>&#8594; GET /backend-wallet/get-all with Engine</i>
         <br/><br/>
+        {selectedWallet && <h3>Add Backend Wallet to Smart Account Session</h3>}
           {selectedWallet && <button onClick={handleAddToSession} className={styles.addButton} disabled={isLoading}>{isLoading ? 'Adding...' : 'Add to Session'}</button>}
-          {selectedWallet && <i>&nbsp;&nbsp;&#8594; createSessionKey() using Client Smart Wallet SDK</i>}
           <br/><br/>
-          {isRevokable && <h3>Revoke Session</h3>}
-          {isRevokable && <button onClick={handleRevokeSigners} className={styles.addButton} disabled={isRevoking}>{isRevoking ? 'Revoking...' : 'Revoke Session'}</button>}
-          {isRevokable && <i>&nbsp;&nbsp;&#8594; revokeSessionKey() using Client Smart Wallet SDK</i>}
+          {selectedWallet && <h3>Revoke Backend Wallet from Smart Account Session</h3>}
+          {selectedWallet && <button onClick={handleRevokeSigners} className={styles.addButton} disabled={isRevoking}>{isRevoking ? 'Revoking...' : 'Revoke Session'}</button>}
           <br/><br/>
-          {isReadyToMint && <h3>Mint an Open Edition NFT to Smart Account Using Engine</h3>}
+          <hr className="divider" />
+          {isReadyToMint && <h3>Gasless Mint of Open Edition NFT with Engine Using Smart Account</h3>}
           {isReadyToMint && <button onClick={handleMintNFT} className={styles.addButton} disabled={isMinting}>{isMinting ? 'Minting...' : 'Mint NFT'}</button>}
-          {isReadyToMint && <i>&nbsp;&nbsp;&#8594; {'POST /contract/{chain}/{contract}/claim-to'} with Engine</i>}
           </>
   ) : (
     <></>

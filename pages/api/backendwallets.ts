@@ -9,10 +9,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     try {
-       // console.log("calling backend-wallet/get-all at: " + process.env.TW_ENGINE_URL + " with key: " + process.env.TW_SECRET_KEY);
        const engine = new Engine({
         url: process.env.TW_ENGINE_URL as string,
-        accessToken: process.env.TW_ACCESS_KEY as string,
+        accessToken: process.env.TW_ENGINE_ACCESS_KEY as string,
         });
 
        const response = await engine.backendWallet.getAll();
