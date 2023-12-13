@@ -4,7 +4,7 @@ import { OE_CONTRACT_ADDRESS } from '../../lib/constants';
 import { Engine } from '@thirdweb-dev/engine';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-    console.log("inside mint.ts: " + req.body);
+    //console.log("inside mint.ts: " + req.body);
 
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' });
@@ -12,7 +12,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const { backendWalletAddress, smartAccountAddress, chain } = req.body;
 
-    console.log("backendWalletAddress: " + backendWalletAddress + " smartAccountAddress: " + smartAccountAddress + " chain: " + chain);
+    console.log("inside mint.ts => backendWalletAddress: " + backendWalletAddress + " smartAccountAddress: " + smartAccountAddress + " chain: " + chain);
 
     try {
 
