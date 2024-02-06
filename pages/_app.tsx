@@ -1,6 +1,6 @@
 import type { AppProps } from "next/app";
 import { ThirdwebProvider, localWallet, embeddedWallet, smartWallet, metamaskWallet } from "@thirdweb-dev/react";
-import {ArbitrumGoerli} from "@thirdweb-dev/chains";
+import {ArbitrumSepolia} from "@thirdweb-dev/chains";
 import {ACCOUNT_FACTORY_ADDRESS} from "../lib/constants";
 import "../styles/globals.css";
 
@@ -14,7 +14,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ThirdwebProvider
       clientId={process.env.NEXT_PUBLIC_TW_CLIENT_ID}
-      activeChain={ArbitrumGoerli}
+      activeChain={ArbitrumSepolia}
       supportedWallets={[
         smartWallet(
           localWallet(),

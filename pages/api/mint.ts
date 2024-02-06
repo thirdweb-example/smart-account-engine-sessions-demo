@@ -31,6 +31,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                 receiver: smartAccountAddress,
                 quantity: "1",
             },
+            false,
             smartAccountAddress as string); 
 
         console.log("result: " + response.result);
