@@ -34,7 +34,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             false,
             smartAccountAddress as string); 
 
-        console.log("result: " + response.result);
+        //console.log("result: " + response.result);
         
         res.status(200).json({ result: response.result });
 

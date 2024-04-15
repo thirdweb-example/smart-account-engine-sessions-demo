@@ -51,12 +51,6 @@ const Home: NextPage = () => {
   const clientId = process.env.NEXT_PUBLIC_TW_CLIENT_ID as string;
   const client = createThirdwebClient({clientId});
 
-  const contract = getContract({
-    client: client,
-    chain: arbitrumSepolia,
-    address: OE_CONTRACT_ADDRESS,
-  });
-
   const account = useActiveAccount();
   const smartWallet = useActiveWallet();
   const chain = useActiveWalletChain();
@@ -96,6 +90,13 @@ const Home: NextPage = () => {
       const endTime = new Date(startTime.getTime() + 15 * 60000); // 60000 milliseconds in a minute
       console.log("adding to session: " + selectedWallet + " from " + startTime + " to " + endTime);
       
+      // get smart account contract
+      const contract = getContract({
+        client: client,
+        chain: arbitrumSepolia,
+        address: account.address,
+      });
+
       // create session key
       const transaction = addSessionKey({
         account: account,
@@ -111,7 +112,7 @@ const Home: NextPage = () => {
       setIsReadyToMint(true);
 
       // notify user
-      toast.success("added to session: " + selectedWallet + " from " + startTime + " to " + endTime);
+      toast.success("added session key: " + selectedWallet + " from " + startTime + " to " + endTime);
       setIsLoading(false);
     }
   }
@@ -120,6 +121,15 @@ const Home: NextPage = () => {
   const handleRevokeSigners = async () => {
     if(selectedWallet && account) {
       setIsRevoking(true);
+
+      // get smart account contract
+      const contract = getContract({
+        client: client,
+        chain: arbitrumSepolia,
+        address: account.address,
+      });
+
+      // remove session key
       const transaction = removeSessionKey({
         account: account,
         contract: contract,
@@ -127,7 +137,7 @@ const Home: NextPage = () => {
       });
 
       const revokeTx = await sendTransaction({ transaction, account });
-      toast.success("revoked session for: " + selectedWallet);
+      toast.success("removed session key for: " + selectedWallet);
       setIsRevokable(false);
       setIsReadyToMint(false);
     }
@@ -201,7 +211,7 @@ const Home: NextPage = () => {
         {selectedWallet && <h3>Add Backend Wallet to Smart Account Session using <code className="code">{"addSessionKey()"}</code></h3>}
           {selectedWallet && <button onClick={handleAddToSession} className={styles.addButton} disabled={isLoading}>{isLoading ? 'Adding...' : 'Add to Session'}</button>}
           <br/><br/>
-          {selectedWallet && <h3>Revoke Backend Wallet from Smart Account Session using <code className="code">{"revokeSessionKey()"}</code></h3>}
+          {selectedWallet && <h3>Remove Backend Wallet from Smart Account Session using <code className="code">{"removeSessionKey()"}</code></h3>}
           {selectedWallet && <button onClick={handleRevokeSigners} className={styles.addButton} disabled={isRevoking}>{isRevoking ? 'Revoking...' : 'Revoke Session'}</button>}
           <br/><br/>
           <hr className="divider" />
