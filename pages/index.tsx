@@ -123,7 +123,7 @@ const Home: NextPage = () => {
         account: account,
         contract: contract,
         sessionKeyAddress: selectedWallet,
-        permissions: {approvedTargets: [LAYER_ZERO_NFT_CONTRACT_ADDRESS], permissionStartTimestamp: startTime, permissionEndTimestamp: endTime}
+        permissions: {approvedTargets: [LAYER_ZERO_NFT_CONTRACT_ADDRESS], permissionStartTimestamp: startTime, permissionEndTimestamp: endTime, nativeTokenLimitPerTransaction: 1}
       });
 
       const sessionKey = await sendTransaction({ transaction, account });
@@ -273,8 +273,8 @@ const Home: NextPage = () => {
           {selectedWallet && <button onClick={handleRevokeSigners} className={styles.addButton} disabled={isRevoking}>{isRevoking ? 'Revoking...' : 'Revoke Session'}</button>}
           <br/><br/>
           <hr className="divider" />
-          {isReadyToMint && <h3>Gasless Mint of Open Edition NFT with Engine Using Smart Account</h3>}
-          {isReadyToMint && <button onClick={handleMintNFT} className={styles.addButton} disabled={isMinting}>{isMinting ? 'Minting...' : 'Mint NFT'}</button>}
+          {/* {isReadyToMint && <h3>Gasless Mint of Open Edition NFT with Engine Using Smart Account</h3>}
+          {isReadyToMint && <button onClick={handleMintNFT} className={styles.addButton} disabled={isMinting}>{isMinting ? 'Minting...' : 'Mint NFT'}</button>} */}
           {isReadyToMint && <h3>Send NFT cross chain using Layer Zero & Engine Using Smart Account</h3>}
           {isReadyToMint && <button onClick={handleSendNTF} className={styles.addButton} disabled={isSending}>{isSending ? 'Sending...' : 'Send NFT to Xai'}</button>}
           </>

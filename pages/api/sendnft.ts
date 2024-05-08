@@ -69,20 +69,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             false,
             smartAccountAddress as string,
           );
-          
-        // // call claimTo on the contract
-        // const response = await engine.erc721.claimTo(
-        //     chain as string, 
-        //     OE_CONTRACT_ADDRESS as string,
-        //     backendWalletAddress as string, 
-        //     {
-        //         receiver: smartAccountAddress,
-        //         quantity: "1",
-        //     },
-        //     false,
-        //     smartAccountAddress as string); 
-
-        //console.log("result: " + response.result);
         
         res.status(200).json({ result: response.result });
 
