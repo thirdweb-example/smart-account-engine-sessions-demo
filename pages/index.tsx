@@ -1,6 +1,6 @@
-import { ConnectButton, useActiveAccount, useActiveWallet, useActiveWalletChain } from "thirdweb/react";
-import { inAppWallet } from "thirdweb/wallets";
-import { addSessionKey, removeSessionKey } from 'thirdweb/extensions/erc4337';
+import { ConnectButton, ThirdwebProvider, useActiveAccount, useActiveWallet, useActiveWalletChain } from "thirdweb/react";
+import { createWallet, inAppWallet } from "thirdweb/wallets";
+import { addSessionKey, removeSessionKey, addAdmin } from 'thirdweb/extensions/erc4337';
 import { arbitrumSepolia } from "thirdweb/chains";
 import { createThirdwebClient, sendTransaction, getContract } from "thirdweb";
 import { useState, useEffect } from "react";
@@ -22,16 +22,7 @@ const buttonOptions = {
 };
 
 const connectModalOptions = {
-  title: "Select Your Sign-In",
-  titleIcon: "ipfs://QmdV9ZAaMPpj113CwmjpsCYWgezsk9G3gEynYARTdGDF3F/cryptotoken.jpeg",
-  welcomeScreen: {
-    img: {
-      src: "ipfs://QmZ1512rWfso1iUh2UkK5LUjw73zCHsxc5RXnsh6NfJo63/TreasureChests.png",
-      width: 150,
-      height: 150,
-    },
-    title: "ERC 4337 Smart Accounts Made Easy",
-  }
+  size: "wide",
 }
 
 const wallets = [
@@ -42,6 +33,7 @@ const wallets = [
         "google",
         "apple",
         "facebook",
+        "phone",
       ],
     },
   }),
@@ -80,6 +72,33 @@ const Home: NextPage = () => {
     setSelectedWallet(event.target.value);
   };
 
+  // function to handle adding an admin to a smart account
+  const handleAddAdmin = async (adminAddress: string) => {
+    if (account) {
+      setIsLoading(true);
+      
+      // get smart account contract
+      const contract = getContract({
+        client: client,
+        chain: arbitrumSepolia,
+        address: account.address,
+      });
+
+      // create session key
+      const transaction = addAdmin({
+        account: account,
+        contract: contract,
+        adminAddress: adminAddress,
+      });
+
+      const addTx = await sendTransaction({ transaction, account });
+      console.log("wallet added as admin:" + addTx);
+
+      // notify user
+      toast.success("added as Admin to smart account: " + adminAddress);
+      setIsLoading(false);
+    }
+  }
   // function to handle adding a backend wallet to a smart account session
   const handleAddToSession = async () => {
     if (selectedWallet && account) {
@@ -191,12 +210,20 @@ const Home: NextPage = () => {
             wallets={wallets} 
             accountAbstraction={smartWalletOptions} 
             connectButton={buttonOptions} 
-            connectModal={connectModalOptions}
           />
         </div>
   
   {account ? (
     <>
+    <h3>Add EOA Wallet to Smart Account as Admin</h3>
+    <button  onClick={() => {
+      const mmask = createWallet('io.metamask');
+      mmask.connect({client}).then((account) => {
+        console.log("connected to metamask");
+        console.log("address: " + account.address);
+        handleAddAdmin(account.address);
+      });
+    }} className={styles.addButton} disabled={isLoading}>{isLoading ? 'Adding Role...' : 'Add Metamask as Admin'}</button>
     <hr className="divider" />
         <h3>Select a Backend Wallet to Create 15 min Session With</h3>
         <select value={selectedWallet || ''} onChange={handleWalletSelect} style={{ background: "#070707", color: "#e7e8e8" }}>
@@ -209,7 +236,7 @@ const Home: NextPage = () => {
         </select>
         <br/><br/>
         {selectedWallet && <h3>Add Backend Wallet to Smart Account Session using <code className="code">{"addSessionKey()"}</code></h3>}
-          {selectedWallet && <button onClick={handleAddToSession} className={styles.addButton} disabled={isLoading}>{isLoading ? 'Adding...' : 'Add to Session'}</button>}
+          {selectedWallet && <button onClick={handleAddToSession} className={styles.addButton} disabled={isLoading}>{isLoading ? 'Adding Role...' : 'Add to Session'}</button>}
           <br/><br/>
           {selectedWallet && <h3>Remove Backend Wallet from Smart Account Session using <code className="code">{"removeSessionKey()"}</code></h3>}
           {selectedWallet && <button onClick={handleRevokeSigners} className={styles.addButton} disabled={isRevoking}>{isRevoking ? 'Revoking...' : 'Revoke Session'}</button>}
