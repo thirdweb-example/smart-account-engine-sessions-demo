@@ -9,7 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Header from "../components/Header";
 import { NextPage } from "next";
-import { OE_CONTRACT_ADDRESS, ACCOUNT_FACTORY_ADDRESS } from "../lib/constants";
+import { OE_CONTRACT_ADDRESS, LAYER_ZERO_NFT_CONTRACT_ADDRESS, ACCOUNT_FACTORY_ADDRESS } from "../lib/constants";
 
 const smartWalletOptions = {
   chain: arbitrumSepolia,
@@ -37,6 +37,7 @@ const wallets = [
       ],
     },
   }),
+  createWallet("io.metamask"),
 ];
 
 const Home: NextPage = () => {
@@ -54,6 +55,7 @@ const Home: NextPage = () => {
   const [isMinting, setIsMinting] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isRevoking, setIsRevoking] = useState<boolean>(false);
+  const [isSending, setIsSending] = useState<boolean>(false);
 
   // fetch backend wallets from Engine
   useEffect(() => {
@@ -121,7 +123,7 @@ const Home: NextPage = () => {
         account: account,
         contract: contract,
         sessionKeyAddress: selectedWallet,
-        permissions: {approvedTargets: [OE_CONTRACT_ADDRESS], permissionStartTimestamp: startTime, permissionEndTimestamp: endTime}
+        permissions: {approvedTargets: [LAYER_ZERO_NFT_CONTRACT_ADDRESS], permissionStartTimestamp: startTime, permissionEndTimestamp: endTime}
       });
 
       const sessionKey = await sendTransaction({ transaction, account });
@@ -197,6 +199,35 @@ const Home: NextPage = () => {
     });
   }
 
+  const handleSendNTF = async () => {
+    setIsSending(true);
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        backendWalletAddress: selectedWallet,
+        smartAccountAddress: account?.address,
+        chain: chain?.id}),
+    };
+
+    // fetch api/mint endpoint
+    const sendTx = await fetch('/api/sendnft', options)
+    .then((response) => {
+      // if status is 200 display toast success
+      if(response.status === 200) {
+        toast.success("sent NFT successfully");
+        setIsSending(false);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      toast.error("error sending NFT: " + err)
+      setIsSending(false);
+    });
+  }
+
   return (
     <main className={styles.main}>
       <div className={styles.container}>
@@ -244,6 +275,8 @@ const Home: NextPage = () => {
           <hr className="divider" />
           {isReadyToMint && <h3>Gasless Mint of Open Edition NFT with Engine Using Smart Account</h3>}
           {isReadyToMint && <button onClick={handleMintNFT} className={styles.addButton} disabled={isMinting}>{isMinting ? 'Minting...' : 'Mint NFT'}</button>}
+          {isReadyToMint && <h3>Send NFT cross chain using Layer Zero & Engine Using Smart Account</h3>}
+          {isReadyToMint && <button onClick={handleSendNTF} className={styles.addButton} disabled={isSending}>{isSending ? 'Sending...' : 'Send NFT to Xai'}</button>}
           </>
   ) : (
     <></>
