@@ -218,6 +218,7 @@ const Home: NextPage = () => {
   
   {account ? (
     <>
+    <h3>Add EOA Wallet to Smart Account as Admin</h3>
     <button  onClick={() => {
       const mmask = createWallet('io.metamask');
       mmask.connect({client}).then((account) => {
