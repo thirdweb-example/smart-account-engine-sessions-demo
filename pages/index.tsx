@@ -94,9 +94,6 @@ const Home: NextPage = () => {
       const addTx = await sendTransaction({ transaction, account });
       console.log("wallet added as admin:" + addTx);
 
-      setIsRevokable(true);
-      setIsReadyToMint(true);
-
       // notify user
       toast.success("added as Admin to smart account: " + adminAddress);
       setIsLoading(false);
